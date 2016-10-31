@@ -1,11 +1,13 @@
 package com.example.myproject.rest;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import javax.persistence.EntityManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.myproject.DBEntities.DBCustomer;
 import com.example.myproject.DBEntities.QDBCustomer;
+import com.example.myproject.service.CustomerService;
 import com.example.myproject.utils.ResourceNotFound;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -21,6 +24,7 @@ import com.mysema.query.jpa.impl.JPAQuery;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 @RestController
 @RequestMapping("/customer")
@@ -31,6 +35,9 @@ public class CustomerRest {
 
 	@Autowired
 	EntityManager entitymanager;
+
+	@Autowired
+	CustomerService customerService;
 
 	LoadingCache<Long, DBCustomer> customerCache = CacheBuilder.newBuilder().maximumSize(100) // maximum
 																								// 100
@@ -57,7 +64,7 @@ public class CustomerRest {
 	}
 
 	@RequestMapping("/{id}")
-	DBCustomer home(@PathVariable("id") Long id) {
+	DBCustomer getCustomerById(@PathVariable("id") Long id) {
 		DBCustomer dbCust;
 		try {
 			dbCust = customerCache.get(id);
@@ -67,5 +74,19 @@ public class CustomerRest {
 
 		return dbCust;
 
+	}
+
+	@RequestMapping("/")
+	List<DBCustomer> getAllCustomers() {
+		QDBCustomer qCustomer = QDBCustomer.dBCustomer;
+		JPAQuery query = new JPAQuery(entitymanager);
+		List<DBCustomer> dbCust = query.from(qCustomer).list(qCustomer);
+		return dbCust;
+
+	}
+
+	@RequestMapping("/{firstName}/{lastName}")
+	DBCustomer saveCustomer(@PathVariable("firstName") String firstName, @PathVariable("lastName") String lastName) {
+		return customerService.save(new DBCustomer(firstName, lastName));
 	}
 }
