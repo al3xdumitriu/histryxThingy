@@ -11,7 +11,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 public class GuavaTester {
-   public static void main(String args[]) {
+  /* public static void main(String args[]) {
    
       //create a cache for employees based on their employee id
       LoadingCache<String, Employee> employeeCache = 
@@ -44,7 +44,7 @@ public class GuavaTester {
       }catch (ExecutionException e) {
          e.printStackTrace();
       }
-   }
+   }*/
 
    private static Employee getFromDatabase(String empId) {
    

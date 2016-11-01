@@ -23,7 +23,6 @@ public class Example {
 
 	@RequestMapping("/")
 	String home() {
-		customerService.save(new DBCustomer("12131das", "asdsad"));
 		return "Hello World!";
 	}
 
